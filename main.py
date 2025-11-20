@@ -5,13 +5,27 @@ from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QPixmap, QIcon
 import os
 import webbrowser
+import re
+from PyPDF2 import PdfMerger
 
 HERE = os.path.dirname(os.path.abspath(__file__))
+dir_list = []
 
-def swap(arr, i, j):
-    temp = arr[i]
-    arr[i] = arr[j]
-    arr[j] = temp
+def list_dirs(root_dir):
+    for dirpath, dirnames, filenames in os.walk(root_dir):
+        if not dirnames:
+            dir_list.append(dirpath)
+
+def merge_pdfs_in_directory(directory_path, output_filename="example.pdf"):
+    merger = PdfMerger()
+    pdf_files = sorted([os.path.join(directory_path, f) for f in os.listdir(directory_path) if f.endswith(".pdf")])
+
+    for pdf_file in pdf_files:
+        merger.append(pdf_file)
+
+    with open(os.path.join(directory_path, output_filename), "wb") as output_file:
+        merger.write(output_file)
+    merger.close()
 
 def images_to_pdf(folder_path, output_pdf_name="output.pdf", export_path=HERE):
     images = []
@@ -26,24 +40,35 @@ def images_to_pdf(folder_path, output_pdf_name="output.pdf", export_path=HERE):
             return
 
     sortedList.sort()
-    num = 0
 
     for filename in sortedList:
         filepath = os.path.join(folder_path, str(filename) + ".png")
         if os.path.exists(filepath):
-            num += 1
             img = Image.open(filepath).convert('RGB')
             images.append(img)
 
-        if num == 1:
-            prevImage = filepath
-            print(prevImage)
 
     if not images:
        print("No images found in the specified folder.")
        return
 
     images[0].save(os.path.join(export_path, output_pdf_name), save_all=True, append_images=images[1:])
+
+def create_pdfs(fp, ex):
+    for i in range(len(dir_list)):
+        temp = str("out_" + str(i) + ".pdf")
+        images_to_pdf(dir_list[i], temp, ex)
+
+def mainExec(folder_path, output_pdf_name="output.pdf", export_path=HERE):
+    list_dirs(folder_path)
+    create_pdfs(folder_path, export_path)
+
+    merge_pdfs_in_directory(export_path, output_pdf_name)
+    clue = r"^out_\d+\.pdf$"
+    for file in os.listdir(export_path):
+        if re.match(clue, file):
+            file_path = os.path.join(export_path, file)
+            os.remove(file_path)
 
 prevText = """Create a pdf from several (numbered) images"""
 
@@ -94,7 +119,6 @@ class MainWindow(QMainWindow):
         sublayout.addWidget(self.export_folder_select)
         self.export_folder_select.hide()
 
-
         self.export_folder = QLabel()
         layout.addWidget(self.export_folder)
 
@@ -118,13 +142,6 @@ class MainWindow(QMainWindow):
             print(f"Selected folder: {self.folder_path}")
             filenum = len(os.listdir(self.folder_path))
             self.preview.setText(f"There are {filenum} files in selected folder")
-
-            for filename in os.listdir(self.folder_path):
-                if not filename.lower().endswith(('.png', '.jpg', '.jpeg', '.gif', '.bmp')):
-                    self.preview.setText("There are either no images or files that are not images in this folder, please only enter a folder with numbered images.")
-                    self.title_input.hide()
-                    self.export_folder_select.hide()
-                    return
 
             self.title_input.show()
             self.export_folder_select.show()
@@ -150,7 +167,7 @@ class MainWindow(QMainWindow):
             docName += ".pdf"
         self.exported_file = docName
         
-        images_to_pdf(target_dir, docName, export_path) 
+        mainExec(target_dir, docName, export_path) 
 
         self.preview.setText("PDF Created")
         self.title_input.hide()
