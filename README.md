@@ -2,8 +2,8 @@
 PDF file generation software made with python to create a pdf using several images.
 
 ## Purpose
-I couldn't find any software that was easy enough to use and create a pdf with using automation, given that my data was already ordered.
-This application enables any user with basic knowledge of python and its image library to easily create a pdf with several image files without having to keep looking for clunky software provided on the rest of the web.
+Suppose you are in a position where you have several image files present in an organised directory structure, (like individual pages from a book being present as png files), and you wish to make a pdf with all of these without having to manually put them through Adobe Acrobat or Microsoft Word or IrfanView, you can use this tool to simply create a pdf with all those images without any need for manually accessing any of those files. 
+
 
 ## Usage
 Using QT, the application allows anyone to easily understand its use and intuitively provides functionality for the basic use case.
@@ -20,4 +20,4 @@ followed by
 and the application will run
 
 ## Future Updates
-I plan to add recursive file searching in the next version and fix some other bugs that may arise upon further testing.
+I plan to add a progress bar and make several QoL improvements
