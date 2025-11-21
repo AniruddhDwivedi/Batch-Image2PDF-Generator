@@ -19,5 +19,5 @@ followed by
 
 and the application will run
 
-## Future Updates
-I plan to add a progress bar and make several QoL improvements
+## What's next
+The Project won't be seeing any updates in the foreseeable future
