@@ -205,16 +205,21 @@ class MainWindow(QMainWindow):
         self.padding = self.padding_entry.text() if self.padding_entry.text() else 0
         for i in range(0, len(fileList)):
             try:
-                thisFile = int(fileList[i][0:-4])
+                if self.currType == 2:
+                    thisFile = int(fileList[i][0:-5])
+                else: 
+                    thisFile = int(fileList[i][0:-4])
+
                 sortedList.append(thisFile)
             except:
+                print(self.currType)
                 print("There may be a non-image file, please remove that");
                 return
 
         sortedList.sort()
 
         for filename in sortedList:
-            filepath = os.path.join(folder_path, str(filename).rjust(self.padding, '0') + img_types[self.currType])
+            filepath = os.path.join(folder_path, str(filename).rjust(int(self.padding), '0') + img_types[self.currType])
             if os.path.exists(filepath):
                 img = Image.open(filepath).convert('RGB')
                 images.append(img)
